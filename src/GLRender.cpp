@@ -52,7 +52,7 @@ namespace {
 
         bool fitToWindowHeight = targetAR <= windowAR;
 
-        const auto[targetWidth, targetHeight] = [&] {
+        const auto [targetWidth, targetHeight] = [&] {
             if (fitToWindowHeight) {
                 // fit to window height
                 return std::make_tuple(targetAR * windowHeightF, windowHeightF);
@@ -482,6 +482,8 @@ namespace {
     };
 
     void GLDebugMessageCallback(const GLUtil::GLDebugMessageInfo& info) {
+        if (info.severity == GL_DEBUG_SEVERITY_NOTIFICATION)
+            return;
         Errorf("OpenGL Debug Message: %s [source=0x%X type=0x%X severity=0x%X]\n", info.message,
                info.source, info.type, info.severity);
     }
@@ -565,6 +567,21 @@ namespace GLRender {
         g_overlayTexture.SetName("g_overlayTexture");
     }
 
+    template <typename T>
+    constexpr T NextPowerOfTwo(T value) {
+        size_t count = 0;
+        value -= 1;
+        while (value > 0) {
+            ++count;
+            value >>= 1;
+        }
+        return static_cast<T>(1 << count);
+    }
+
+    // template <size_t value>
+    // struct PrintValue;
+    // PrintValue<NextPowerOfTwo(0)> pv;
+
     bool OnWindowResized(int windowWidth, int windowHeight) {
         if (windowHeight == 0) {
             windowHeight = 1;
@@ -587,12 +604,16 @@ namespace GLRender {
 
         // Now we scale the screen width/height used to determine our texture sizes so that they're
         // not too large. This is especially important on high DPI displays.
-        const auto[screenTextureWidth, screenTextureHeight] =
-            ScaleDimensions(g_screenViewport.w, g_screenViewport.h, MaxTextureSize, MaxTextureSize);
+        // const auto [screenTextureWidth, screenTextureHeight] =
+        //    ScaleDimensions(g_screenViewport.w, g_screenViewport.h, MaxTextureSize,
+        //    MaxTextureSize);
+
+        const auto [screenTextureWidth, screenTextureHeight] =
+            std::make_tuple(NextPowerOfTwo(g_screenViewport.w), NextPowerOfTwo(g_screenViewport.h));
 
         // "CRT" represents the physical CRT screen where the line vectors are drawn. The size is
         // smaller than the screen since the overlay is larger than the CRT on the Vectrex.
-        const auto[crtWidth, crtHeight] =
+        const auto [crtWidth, crtHeight] =
             std::make_tuple(static_cast<GLsizei>(screenTextureWidth * CrtScaleX),
                             static_cast<GLsizei>(screenTextureHeight * CrtScaleY));
 

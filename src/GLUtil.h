@@ -190,7 +190,7 @@ namespace GLUtil {
         GLenum type{};
     };
 
-    const GLint DEFAULT_FILTERING = GL_NEAREST;
+    const GLint DEFAULT_FILTERING = GL_LINEAR;
 
     void AllocateTexture(GLuint textureId, GLsizei width, GLsizei height, GLint internalFormat,
                          std::optional<GLint> filtering = {},

@@ -77,7 +77,7 @@ namespace {
     }
 
     SDL_GLContext CreateGLContext(SDL_Window* window) {
-        auto[major, minor] = GLRender::GetMajorMinorVersion();
+        auto [major, minor] = GLRender::GetMajorMinorVersion();
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, major);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, minor);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -417,6 +417,8 @@ bool SDLEngine::Run(int argc, char** argv) {
         std::cout << "Cannot create OpenGL context with error " << SDL_GetError() << std::endl;
         return false;
     }
+
+    SDL_GL_SetSwapInterval(0);
 
     ImGui_ImplSdlGL3_Init(g_window);
     ImGui::GetIO().FontGlobalScale = options.imguiFontScale.value_or(1.f);
